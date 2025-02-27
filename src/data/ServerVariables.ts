@@ -1,4 +1,4 @@
-export const API_URL: string = "172.13.162.116:4000";
+export const API_URL: string = "http://172.13.162.116:4000";
 
 //In seconds
 export const BACKEND_PING_FREQUENCY: number = 100;

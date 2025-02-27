@@ -114,7 +114,10 @@ const App: React.FC = () => {
         try {
             const response = await axiosInstance.get(`${API_URL}/scores`);
 
-            const data = response.data;
+            console.log("Response: ", response.data);
+            const data = response?.data ?? [];
+
+            if(data.length === 0) throw new Error("No data returned from server");
 
             setPlayers((prevPlayers) =>
                 DEFAULT_GAME_SETTINGS.playerNames.map((playerName) => {
