@@ -17,6 +17,11 @@ export interface Player {
     delta: number;
 }
 
+const axiosInstance = axios.create({
+    baseURL: '', // Ensures no automatic baseURL prepending
+});
+
+
 const App: React.FC = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [serverIsAlive, setServerIsAlive] = useState<boolean>(true);
@@ -96,7 +101,7 @@ const App: React.FC = () => {
     const updateUserScore = async (pkey: number, delta: number) => {
         try {
             console.log("Updating score:", { pkey, delta });
-            await axios.post(`${API_URL}/update`, { pkey, delta });
+            await axiosInstance.post(`${API_URL}/update`, { pkey, delta });
             if (!serverIsAlive) setServerIsAlive(true);
         } catch (error: any) {
             console.error("SQL Error:", error?.response?.data?.error?.sqlMessage ?? error);
@@ -107,8 +112,9 @@ const App: React.FC = () => {
 
     const fetchScores = async () => {
         try {
-            const response = await fetch(`${API_URL}/scores`);
-            const data = await response.json();
+            const response = await axiosInstance.get(`${API_URL}/scores`);
+
+            const data = response.data;
 
             setPlayers((prevPlayers) =>
                 DEFAULT_GAME_SETTINGS.playerNames.map((playerName) => {
