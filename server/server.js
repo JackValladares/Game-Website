@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 const db = mysql.createConnection({
-    host: "172.13.162.116:4000",
+    host: "localhost",
     user: "root", // Change if needed
     password: "Jejfowk1584!", // Set your MySQL root password
     database: "counter_game",
