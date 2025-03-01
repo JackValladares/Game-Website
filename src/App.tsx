@@ -114,7 +114,7 @@ const App: React.FC = () => {
         try {
             const response = await axiosInstance.get(`${API_URL}/scores`);
 
-            console.log("Response: ", response.data);
+            //console.log("Response: ", response.data);
             const data = response?.data ?? [];
 
             if(data.length === 0) throw new Error("No data returned from server");
@@ -168,53 +168,46 @@ const App: React.FC = () => {
 const songNames = ['Background Music 1.mp3', 'Background Music 2.mp3', 'Background Music 3.mp3'];
 
 const MusicPlayer = () => {
-    const audioRef = useRef(new Audio(songNames[0])); // Single audio instance
+    const audioRef = useRef(new Audio(songNames[0]));
     const songIndexRef = useRef(0);
+    const hasStarted = useRef(false);
 
     useEffect(() => {
         const audio = audioRef.current;
 
-        // Function to handle song end and cycle through playlist
         const handleSongEnd = () => {
             songIndexRef.current = (songIndexRef.current + 1) % songNames.length;
             audio.src = songNames[songIndexRef.current];
+            audio.load(); // Ensure the new song is fully loaded
             audio.play().catch((err) => console.warn("Playback error:", err));
         };
 
-        audio.loop = false; // We control looping manually
+        audio.loop = false;
         audio.addEventListener('ended', handleSongEnd);
 
-        // Function to start audio playback (required for autoplay policies)
+        // ✅ Ensure playback starts on first user interaction
         const enableAudio = () => {
-            audio.play()
-                .then(() => {
-                    console.log("Audio playback started.");
-                })
-                .catch(() => {
-                    console.warn("Autoplay blocked, waiting for user interaction...");
-                });
+            if (hasStarted.current) return; // Prevent multiple executions
+            hasStarted.current = true;
 
-            // Remove event listeners once audio starts
-            document.removeEventListener('click', enableAudio);
-            document.removeEventListener('keydown', enableAudio);
-            document.removeEventListener('mousemove', enableAudio);
+            audio.play()
+                .then(() => console.log("✅ Audio playback started."))
+                .catch((err) => console.warn("❌ Autoplay blocked, waiting for interaction...", err));
+
+            // Remove event listener after first interaction
+            window.removeEventListener('click', enableAudio);
         };
 
-        // Listen for user interaction ONCE to start playback
-        document.addEventListener('click', enableAudio, { once: true });
-        document.addEventListener('keydown', enableAudio, { once: true });
-        document.addEventListener('mousemove', enableAudio, { once: true });
+        window.addEventListener('click', enableAudio);
 
         return () => {
             audio.pause();
             audio.removeEventListener('ended', handleSongEnd);
-            document.removeEventListener('click', enableAudio);
-            document.removeEventListener('keydown', enableAudio);
-            document.removeEventListener('mousemove', enableAudio);
+            window.removeEventListener('click', enableAudio);
         };
     }, []);
 
-    return <>-</>;
+    return <></>
 };
 
 export default App;
