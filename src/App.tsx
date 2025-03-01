@@ -175,6 +175,7 @@ const MusicPlayer = () => {
     useEffect(() => {
         const audio = audioRef.current;
 
+        audio.volume = 0.5;
         const handleSongEnd = () => {
             songIndexRef.current = (songIndexRef.current + 1) % songNames.length;
             audio.src = songNames[songIndexRef.current];
