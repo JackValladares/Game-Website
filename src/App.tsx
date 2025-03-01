@@ -171,6 +171,7 @@ const MusicPlayer = () => {
     const audioRef = useRef(new Audio(songNames[0]));
     const songIndexRef = useRef(0);
     const hasStarted = useRef(false);
+    const [doesMute, setDoesMute] = useState<boolean>(true);
 
     useEffect(() => {
         const audio = audioRef.current;
@@ -208,7 +209,12 @@ const MusicPlayer = () => {
         };
     }, []);
 
-    return <></>
+    const setVolume = (volume: number) => {
+        setDoesMute(!doesMute);
+        audioRef.current.volume = volume;
+    };
+
+    return <><GameButton onClick={doesMute ? () => setVolume(0) : () => setVolume(.5)}>{doesMute ? 'Mute' : 'Unmute'}</GameButton></>
 };
 
 export default App;
