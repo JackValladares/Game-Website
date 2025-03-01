@@ -154,6 +154,7 @@ const App: React.FC = () => {
           </Box>
           <Box sx={{width: '80%', maxWidth: '1200px', display: 'flex', justifyContent: 'space-between', backgroundColor: theme.palette.background.default, padding: '20px'}}>
               <GameButton onClick={() => setEpilepsyMode(!epilepsyMode)} >{epilepsyMode ? 'Fun Mode' : 'Boring Mode'}</GameButton>
+              <MusicPlayer />
               <NetworkStatus serverIsAlive={serverIsAlive} message={serverIsAlive ? 'Server is Connected!' : 'Server is Disconnected!'} />
           </Box>
       </Stack>
@@ -161,6 +162,59 @@ const App: React.FC = () => {
 
 
   );
+};
+
+
+const songNames = ['Background Music 1.mp3', 'Background Music 2.mp3', 'Background Music 3.mp3'];
+
+const MusicPlayer = () => {
+    const audioRef = useRef(new Audio(songNames[0])); // Single audio instance
+    const songIndexRef = useRef(0);
+
+    useEffect(() => {
+        const audio = audioRef.current;
+
+        // Function to handle song end and cycle through playlist
+        const handleSongEnd = () => {
+            songIndexRef.current = (songIndexRef.current + 1) % songNames.length;
+            audio.src = songNames[songIndexRef.current];
+            audio.play().catch((err) => console.warn("Playback error:", err));
+        };
+
+        audio.loop = false; // We control looping manually
+        audio.addEventListener('ended', handleSongEnd);
+
+        // Function to start audio playback (required for autoplay policies)
+        const enableAudio = () => {
+            audio.play()
+                .then(() => {
+                    console.log("Audio playback started.");
+                })
+                .catch(() => {
+                    console.warn("Autoplay blocked, waiting for user interaction...");
+                });
+
+            // Remove event listeners once audio starts
+            document.removeEventListener('click', enableAudio);
+            document.removeEventListener('keydown', enableAudio);
+            document.removeEventListener('mousemove', enableAudio);
+        };
+
+        // Listen for user interaction ONCE to start playback
+        document.addEventListener('click', enableAudio, { once: true });
+        document.addEventListener('keydown', enableAudio, { once: true });
+        document.addEventListener('mousemove', enableAudio, { once: true });
+
+        return () => {
+            audio.pause();
+            audio.removeEventListener('ended', handleSongEnd);
+            document.removeEventListener('click', enableAudio);
+            document.removeEventListener('keydown', enableAudio);
+            document.removeEventListener('mousemove', enableAudio);
+        };
+    }, []);
+
+    return <>-</>;
 };
 
 export default App;
